@@ -3,13 +3,14 @@ import { MongoClient, MongoClientOptions } from "mongodb";
 const uri = process.env.MONGODB_URI!;
 if (!uri) throw new Error("Missing MONGODB_URI");
 
-// ✅ TLS options สำหรับ Vercel + MongoDB Atlas
+// ✅ Options สำหรับ Vercel Serverless + MongoDB Atlas
 const options: MongoClientOptions = {
-    tls: true,
-    tlsAllowInvalidCertificates: false,
-    tlsAllowInvalidHostnames: false,
     retryWrites: true,
     w: "majority",
+    maxPoolSize: 10,
+    minPoolSize: 0,
+    serverSelectionTimeoutMS: 5000,
+    socketTimeoutMS: 45000,
 };
 
 let client: MongoClient;
