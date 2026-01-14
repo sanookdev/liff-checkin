@@ -15,8 +15,8 @@ export async function POST(req: Request) {
         }
 
         const client = await clientPromise;
-        const db = client.db('line_register'); // ชื่อ database
-        const col = db.collection('registrations'); // ชื่อ collection
+        const db = client.db('checkin_db'); // ชื่อ database
+        const col = db.collection('registrants'); // ชื่อ collection
 
         // กันซ้ำ
         const existing = await col.findOne({ lineUserId });

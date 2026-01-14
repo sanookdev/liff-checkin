@@ -55,8 +55,8 @@ export async function POST(req: Request) {
 
         // ✅ 2) ทำเช็คอินตาม logic เดิมของคุณ
         const client = await clientPromise;
-        const db = client.db('line_register');
-        const col = db.collection('registrations');
+        const db = client.db('checkin_db');
+        const col = db.collection('registrants');
 
         const existing = await col.findOne({ lineUserId }, { projection: { checkedIn: 1, checkedInAt: 1 } });
 

@@ -16,8 +16,8 @@ export async function GET(
         }
 
         const client = await clientPromise;
-        const db = client.db('line_register');
-        const col = db.collection('registrations');
+        const db = client.db('checkin_db');
+        const col = db.collection('registrants');
 
         const row = await col.findOne(
             { lineUserId },

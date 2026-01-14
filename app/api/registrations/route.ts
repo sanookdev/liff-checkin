@@ -15,8 +15,8 @@ export async function GET(req: Request) {
         const skip = (page - 1) * limit;
 
         const client = await clientPromise;
-        const db = client.db("line_register");
-        const col = db.collection("registrations");
+        const db = client.db("checkin_db");
+        const col = db.collection("registrants");
 
         const filter: any = {};
 
@@ -62,7 +62,7 @@ export async function GET(req: Request) {
             rows,
         });
     } catch (e: any) {
-        console.error("LIST REGISTRATIONS ERROR:", e);
+        console.error("LIST registrants ERROR:", e);
         return NextResponse.json({ ok: false, message: e?.message ?? "Server error" }, { status: 500 });
     }
 }
