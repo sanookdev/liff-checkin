@@ -3,6 +3,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Swal from 'sweetalert2';
 
 type LiffProfile = {
     userId: string;
@@ -106,20 +107,49 @@ export default function RegisterPage() {
             const data = await res.json();
             if (!res.ok) throw new Error(data?.message || 'Register failed');
 
+            // ✅ ถ้าลงทะเบียนซ้ำ แจ้งเตือนและปิดหน้าต่าง
+            if (data?.already) {
+                await Swal.fire({
+                    icon: 'info',
+                    title: 'คุณเคยลงทะเบียนแล้ว',
+                    text: 'ระบบพบว่าคุณเคยลงทะเบียนไว้ก่อนหน้านี้แล้ว',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#06C755'
+                });
+
+                // ส่งข้อความแจ้งใน LINE
+                if (window.liff.isInClient()) {
+                    await window.liff.sendMessages([
+                        { type: 'text', text: `คุณเคยลงทะเบียนไว้แล้ว ✅\nชื่อ: ${profile.displayName}` }
+                    ]);
+                    window.liff.closeWindow();
+                }
+                return;
+            }
+
             // 2) Send LIFF Message (ไม่ใช้ push)
             if (!window.liff.isInClient()) {
                 // เปิดนอก LINE app -> ส่งข้อความไม่ได้
                 throw new Error('ต้องเปิดผ่านแอป LINE เพื่อส่งข้อความอัตโนมัติ (LIFF Message)');
             }
 
-            const msgText = data?.already ? `คุณเคยลงทะเบียนไว้แล้ว ✅\nชื่อ: ${profile.displayName}` : `ลงทะเบียนสำเร็จ ✅\nชื่อ: ${profile.displayName}\nหน่วยงาน: ${department}\nโทร: ${phone}`;
+            const msgText = `ลงทะเบียนสำเร็จ ✅\nชื่อ: ${profile.displayName}\nหน่วยงาน: ${department}\nโทร: ${phone}`;
 
             await window.liff.sendMessages([{ type: 'text', text: msgText }]);
+
+            // แสดง success popup
+            await Swal.fire({
+                icon: 'success',
+                title: 'ลงทะเบียนสำเร็จ!',
+                text: 'ระบบได้บันทึกข้อมูลของคุณเรียบร้อยแล้ว',
+                timer: 1500,
+                showConfirmButton: false
+            });
 
             // 3) ปิดหน้าต่าง LIFF เพื่อให้ user กลับไปแชทและเห็นข้อความทันที
             window.liff.closeWindow();
 
-            // ถ้าคุณอยาก “ไม่ปิด” ให้ใช้บรรทัดนี้แทน:
+            // ถ้าคุณอยาก "ไม่ปิด" ให้ใช้บรรทัดนี้แทน:
             // router.push("/success");
         } catch (e: any) {
             setError(e?.message || 'Submit error');
